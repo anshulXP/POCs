@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="10f692c9-65e1-4641-aa67-a260316863dd" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<flow name="async-scope-flow" doc:id="3f533d20-42d5-4609-8233-349b6facd84b" >
+		<http:listener doc:name="async" doc:id="afb9a070-7868-4628-83fc-8cee7da09c2b" config-ref="HTTP_Listener_config" path="async" />
+		<logger level="INFO" doc:name="START" doc:id="47691ff5-b82c-464a-a53e-fe2fe0391c7a" message='#[{"START": "$(flow.name)",&#10;"correlationId": correlationId&#10;}]' />
+		<set-variable value="#[vars.x]" doc:name="x" doc:id="a2972473-4dcb-49f3-bda6-626d39e5066d" variableName="x" />
+		<async doc:name="Async" doc:id="0c0e1edd-fa61-4372-9e0b-bf76d6aafb8c" >
+			<set-payload value="payload changed in async scope" doc:name="Set Payload" doc:id="c6e168e8-cdb2-48a1-accb-1df4309fab97" />
+			<set-variable value="5" doc:name="Set Variable" doc:id="89053672-eb4b-4e29-91d6-2b63c67fe62a" variableName="x" />
+			<logger level="INFO" doc:name="x" doc:id="445a0363-b223-4ede-9dc9-858199932d5c" message="#[vars.x]" />
+			<logger level="INFO" doc:name="payload" doc:id="8b4d3d7c-fcc8-4e57-9594-5b0d2e59996f" message="#[payload]" />
+			<logger level="INFO" doc:name="Logger" doc:id="91ff66a5-816f-4d0d-8751-c46e84de4cf7" />
+			<logger level="INFO" doc:name="Logger1" doc:id="ec796067-94be-4c09-8aa7-f8acae260acd" />
+		</async>
+		<logger level="INFO" doc:name="Logger" doc:id="0e469f5b-f7db-4ab2-bb95-b0e83d580395" />
+		<logger level="INFO" doc:name="Logger1" doc:id="603a857c-2ca4-44b4-a6bb-dc1e2b9efb76" />
+		<logger level="INFO" doc:name="Logger2" doc:id="4c951e2e-cef2-443c-b139-f0869ff84265" />
+		<logger level="INFO" doc:name="x1" doc:id="84d8184a-80b6-44a8-9b74-4798956530af" message="#[vars.x]" />
+		<logger level="INFO" doc:name="payload" doc:id="4d535a13-6d48-4ef1-9536-5a23236fc6fa" message="payload" />
+		<logger level="INFO" doc:name="END" doc:id="760fb838-6de7-4eff-96ae-676103e7b5db" message='#[{&#10;"END": "$(flow.name)",&#10;"correlationId": correlationId&#10;}]' />
+	</flow>
+	<flow name="learning-munitsFlow" doc:id="fc0fed9e-9ea4-4e3e-9001-c488b3db547e" >
+		<http:listener doc:name="Listener" doc:id="8f115c36-bd34-414a-aaf1-6531991934ea" config-ref="HTTP_Listener_config"/>
+		<logger level="INFO" doc:name="Logger" doc:id="cd293ee1-1d81-4286-b4ee-60c6ee193cfc" />
+		<db:select doc:name="Select" doc:id="cb56fcbd-52f2-4722-8f28-29eaf7b1d564" />
+		<logger level="INFO" doc:name="Logger" doc:id="10cb075b-d8c2-4ec3-9abc-4de58e1ad99b" />
+	</flow>
+</mule>
