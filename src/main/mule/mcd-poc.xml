@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:file="http://www.mulesoft.org/schema/mule/file"
+	xmlns:anypoint-mq="http://www.mulesoft.org/schema/mule/anypoint-mq"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:jms="http://www.mulesoft.org/schema/mule/jms" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/jms http://www.mulesoft.org/schema/mule/jms/current/mule-jms.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/anypoint-mq http://www.mulesoft.org/schema/mule/anypoint-mq/current/mule-anypoint-mq.xsd
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<anypoint-mq:config name="Anypoint_MQ_Config" doc:name="Anypoint MQ Config" doc:id="ba8d831a-aaec-441e-a089-61d84873a10c" >
+		<anypoint-mq:connection url="https://mq-us-east-1.anypoint.mulesoft.com/api/v1/organizations/ce235d46-115c-497c-b0e2-474afd80f5e9/environments/f4097644-dc15-44ab-a801-1a4e7c898400" clientId="4d1be66189004d0da195dc043df39bec" clientSecret="0B23e2d84FB24c008Cf1C81e701C89AA" />
+	</anypoint-mq:config>
+	<flow name="anypoint-mq" doc:id="904b5312-6336-4494-99bc-19fc63dda87c" >
+		<http:listener doc:name="anypoint-mq" doc:id="3032c301-1a54-47cb-adfd-fffd609e6074" config-ref="HTTP_Listener_config" path="anypoint-mq"/>
+		<logger level="INFO" doc:name="START" doc:id="f9755d4c-22c2-4d39-98ae-81a8ff698266" message='#[{"START": "$(flow.name)",&#10;"correlationId": correlationId&#10;}]' />
+		<anypoint-mq:publish doc:name="Publish" doc:id="ae0685ee-cfd8-4142-9a5a-f34058fec94b" config-ref="Anypoint_MQ_Config" destination="cc-user-queue">
+		</anypoint-mq:publish>
+		<logger level="INFO" doc:name="END" doc:id="ec24ee3c-c944-4edf-b6b2-ed177be1197c" message='#[{&#10;"END": "$(flow.name)",&#10;"correlationId": correlationId,&#10;"payload": payload&#10;}]' />
+	</flow>
+	<flow name="mcd-pocFlow1" doc:id="01dbf4db-14d5-4bdb-a587-aec1729bd073" >
+		<http:listener doc:name="consume" doc:id="a6e8101b-d1d2-4568-becf-18d8fc03468d" config-ref="HTTP_Listener_config" path="consume"/>
+		<logger level="INFO" doc:name="START" doc:id="1d221efc-53a0-496b-a191-7a5e6419f3a7" message='#[{"START": "$(flow.name)",&#10;"correlationId": correlationId&#10;}]' />
+		<anypoint-mq:consume doc:name="Consume" doc:id="cff78b9b-3da3-4deb-86b0-67dd638f97cb" config-ref="Anypoint_MQ_Config" destination="cc-user-queue"/>
+		<logger level="INFO" doc:name="END" doc:id="638fe840-356c-43da-840e-ca75cc556fcd" message='#[{&#10;"END": "$(flow.name)",&#10;"correlationId": correlationId,&#10;"payload": payload&#10;}]' />
+	</flow>
+	<flow name="mcd-pocFlow" doc:id="95698e86-9ee7-498a-b5d6-37a917a8cefb" >
+		<anypoint-mq:subscriber doc:name="Subscriber" doc:id="8a196d97-7905-4301-a472-e327bd3b1c65" config-ref="Anypoint_MQ_Config" destination="cc-user-queue">
+			<anypoint-mq:subscriber-type >
+				<anypoint-mq:polling >
+					<scheduling-strategy >
+						<fixed-frequency />
+					</scheduling-strategy>
+				</anypoint-mq:polling>
+			</anypoint-mq:subscriber-type>
+		</anypoint-mq:subscriber>
+		<logger level="INFO" doc:name="START" doc:id="cae4f2e9-e9f4-4c09-a1cd-afd15587c267" message='#[{"START": "$(flow.name)",&#10;"correlationId": correlationId&#10;}]' />
+		<!-- [STUDIO:"process"]<logger level="INFO" doc:name="process" doc:id="86516596-1d11-49ba-b458-06a72f83eddd" /> [STUDIO] -->
+		<logger level="INFO" doc:name="END" doc:id="a3eeeab7-16af-4501-9558-4c03b5218ed0" message='#[{&#10;"END": "$(flow.name)",&#10;"correlationId": correlationId,&#10;"payload": payload&#10;}]' />
+	</flow>
+
+</mule>
